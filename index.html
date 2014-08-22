@@ -4,8 +4,42 @@
 		<title>Test ThusSpokeNpc</title>
 		<script src="index.js" type="text/javascript"></script>
 		<script type="text/javascript">
+			var npc = new ThusSpokeNpc(1, 0, 0, 0, 0, speakHandler, [
+				{
+					conditions: {
+						banter: 1
+					},
+					message: 'Hey guy :D'
+				},
+				{
+					conditions: {
+						banter: 1
+					},
+					message: 'oooo shiny'
+				},
+				{
+					conditions: {
+						banter: 1
+					},
+					message: 'omg my feelings :('
+				},
+				{
+					conditions: {
+						objectId: 1
+					},
+					message: 'You found my stuff!!! Thanks!'
+				},
+			]);
+
+			/**
+			 * Speaker Handler
+			  */
+			function speakHandler(id, message) {
+				document.getElementById("output").value = id = ' says: ' + message;
+			}
+
 			function speak() {
-				document.getElementById("output").value = new ThusSpokeNpc();
+				npc.ask({ range: 10, objectId: 1 });
 			}
 		</script>
 		<style type="text/css">
