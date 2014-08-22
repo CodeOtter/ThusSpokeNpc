@@ -1,0 +1,31 @@
+{
+  "name": "thusspokenpc",
+  "version": "0.0.1",
+  "description": "A dialog/interaction system for non-player characters in games.",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test node_modules/bulkhead-test/node_modules/.bin/mocha test --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CodeOtter/thusspokenpc.git"
+  },
+  "keywords": [
+    "npc",
+    "rpg",
+    "game",
+    "dialog",
+    "speech",
+    "interaction"
+  ],
+  "author": "Patrick Ryan <patrick.ryan@codeotter.com>",
+  "license": "GPL v2",
+  "bugs": {
+    "url": "https://github.com/CodeOtter/thusspokenpc/issues"
+  },
+  "homepage": "https://github.com/CodeOtter/thusspokenpc",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}

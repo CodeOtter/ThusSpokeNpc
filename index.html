@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Test ThusSpokeNpc</title>
+		<script src="index.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			function speak() {
+				document.getElementById("output").value = new ThusSpokeNpc();
+			}
+		</script>
+		<style type="text/css">
+			#button {
+				-moz-box-shadow:inset 0px 1px 0px 0px #f29c93;
+				-webkit-box-shadow:inset 0px 1px 0px 0px #f29c93;
+				box-shadow:inset 0px 1px 0px 0px #f29c93;
+				background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #fe1a00), color-stop(1, #ce0100) );
+				background:-moz-linear-gradient( center top, #fe1a00 5%, #ce0100 100% );
+				filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe1a00', endColorstr='#ce0100');
+				background-color:#fe1a00;
+				-webkit-border-top-left-radius:37px;
+				-moz-border-radius-topleft:37px;
+				border-top-left-radius:37px;
+				-webkit-border-top-right-radius:0px;
+				-moz-border-radius-topright:0px;
+				border-top-right-radius:0px;
+				-webkit-border-bottom-right-radius:37px;
+				-moz-border-radius-bottomright:37px;
+				border-bottom-right-radius:37px;
+				-webkit-border-bottom-left-radius:0px;
+				-moz-border-radius-bottomleft:0px;
+				border-bottom-left-radius:0px;
+				text-indent:0;
+				border:1px solid #d83526;
+				display:inline-block;
+				color:#ffffff;
+				font-family:Arial;
+				font-size:15px;
+				font-weight:bold;
+				font-style:normal;
+				height:65px;
+				line-height:65px;
+				width:131px;
+				text-decoration:none;
+				text-align:center;
+				text-shadow:7px 7px 6px #000;
+				float: left;
+			}
+			#button:hover {
+				background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ce0100), color-stop(1, #fe1a00) );
+				background:-moz-linear-gradient( center top, #ce0100 5%, #fe1a00 100% );
+				filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ce0100', endColorstr='#fe1a00');
+				background-color:#ce0100;
+			}
+			#button:active {
+				position:relative;
+				top:1px;
+			}
+			#output {
+				width: 50%;
+				height: 60px;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<a href="#" id="button" onclick="speak();">SPEAK</a>
+			<textarea id="output"></textarea>
+		</div>
+	</body>
+</html>
