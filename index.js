@@ -40,6 +40,7 @@
 			tolerance: tolerance || 0,
 			range: range || 0.0,
 			banter: banter || 0,
+			banterDelay: banterDelay || 0,
 			speak: speak,
 			timers: {
 				banterCheck: null,
@@ -48,15 +49,7 @@
 		};
 
 		if(banterDelay) {
-			npcs[id].timers.banterCheck = setInterval(function() {
-				if(getRandomRange(0, 100) < banter) {
-					// banter check passed, chat away!
-					var messages = findMessages({ banter: true }, npcs[id]);
-					if(messages) {
-						speak(id, messages[getRandomRange(0, messages.length - 1)].message);
-					}
-				}
-			}, banterDelay);
+			npcs[id].timers.banterCheck = setInterval(getBanterCheck(id), banterDelay);
 		}
 		
 		return npcs[id];
@@ -93,11 +86,15 @@
 		if(npc !== undefined) {
 			var message = isValidAsking(conditions, npc);
 			if(message) {
-				if(npc.tolerance > 0) {
-					npc.lastInteraction = setTimeout(function() { 
+				if(npc.timers.lastInteraction === null) {
+					clearInterval(npc.timers.banterCheck);
+					console.log('cleared');
+					npc.timers.lastInteraction = setTimeout(function() { 
 						// Prevent the user from badgering this NPC over and over again
-						clearInterval(npc.lastInteraction);
-						npc.lastInteraction = null;
+						clearInterval(npc.timers.lastInteraction);
+						npc.timers.lastInteraction = null;
+						npc.timers.banterCheck = setInterval(getBanterCheck(id), npc.banterDelay);
+						console.log('restored');
 					}, npc.tolerance);
 				}
 				npc.speak(id, message.message, message.rewards);
@@ -142,6 +139,25 @@
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////// API COMMANDS ONLY EXIST ABOVE THIS LINE ///////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Returns a Banter interval
+	 * @param	Number		The ID of the entity
+	 * @returns	Function	The Interval callback
+	 */
+	function getBanterCheck(id) {
+		var npc = npcs[id];
+		return function() {
+			if(getRandomRange(0, 100) < npc.banter) {
+				// banter check passed, chat away!
+				var messages = findMessages({ banter: true }, npc);
+				if(messages) {
+					var message = messages[getRandomRange(0, messages.length - 1)];
+					npc.speak(id, message.message, message.rewards);
+				}
+			}
+		};
+	}
 	
 	/**
 	 * A container for an NPC Message
@@ -257,5 +273,10 @@
 	} else {
 		// We are exporting to the global context
 		root.ThusSpokeNpc = ThusSpokeNpc;
+		root.npcCreate = ThusSpokeNpc.create;
+		root.npcAsk = ThusSpokeNpc.ask;
+		root.npcAdd = ThusSpokeNpc.add;
+		root.npcSay = ThusSpokeNpc.say;
+		root.npcDestroy = ThusSpokeNpc.destroy;
 	}
 }).call(this);
