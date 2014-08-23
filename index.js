@@ -2,10 +2,8 @@
 
 /**
  * ThusSpokeNpc
- * A dialog/interaction system for non-player characters in games.
+ * A dialog/interaction system for non-player characters in games.  Please read README.md for a detailed explanation of how this system works.
  * @author Patrick Ryan <patrick.ryan@codeotter.com>
- * @example
- * 
  */
 (function() {
 
@@ -21,14 +19,15 @@
 	/**
 	 * Creates an NPC
 	 * @param	Number		The ID of the entity you'd like to create
-	 * @param	Number		Delay (in microseconds) between messages.  0 means you can always ask it a question.  (0 is default)
-	 * @param	Number		How close you have to be to ask the NPC a question.  0 means you can always ask it a question no matter the distance (0 is default)
-	 * @param	Number		Percent chance an NPC will randomly speaking banter.  0 is default. 
-	 * @param	Number		How often (in microseconds) banter might happen.
-	 * @param	Array		An array of NPC messages
 	 * @param	Function	A JavaScript callback that handles when an NPC speaks.  (Requires an id:Int and a message:String parameter)
+	 * @param	Number		Delay (in microseconds) between messages.  0 means you can always ask it a question.  (0 is default)
+	 * @param	Number		How close you have to be to ask the NPC a question.  0 means you can always ask it a question no matter the distance. (0 is default)
+	 * @param	Number		Percent chance an NPC will randomly speaking banter.  (0 is default) 
+	 * @param	Number		How often (in microseconds) banter might happen. (0 is default)
+	 * @param	Array		An array of object literal NPC Messages
+	 * 
 	 */
-	function ThusSpokeNpc(id /* Int */, tolerance /* Int */, range /* Float */, chatty /* Int */, chattyDelay /* Int */, speak /* Function */, messages /* Array */) {
+	function ThusSpokeNpc(id /* Int */, speak /* Function */, tolerance /* Int */, range /* Float */, banter /* Int */, banterDelay /* Int */, messages /* Array */) {
 		var self = this;
 
 		var normalizedMessages = [];
@@ -40,7 +39,7 @@
 			messages: normalizedMessages,
 			tolerance: tolerance || 0,
 			range: range || 0.0,
-			chatty: chatty || 0,
+			banter: banter || 0,
 			speak: speak,
 			timers: {
 				banterCheck: null,
@@ -48,22 +47,24 @@
 			},
 		};
 
-		if(chattyDelay) {
+		if(banterDelay) {
 			npcs[id].timers.banterCheck = setInterval(function() {
-				if(getRandomRange(0, 100) < chatty) {
-					// Chatty check passed, chat away!
-					var message = findMessages({ banter: 1}, npcs[id]);
+				if(getRandomRange(0, 100) < banter) {
+					// banter check passed, chat away!
+					var messages = findMessages({ banter: true }, npcs[id]);
 					if(messages) {
 						speak(id, messages[getRandomRange(0, messages.length - 1)].message);
 					}
 				}
-			}, chattyDelay);
+			}, banterDelay);
 		}
 		
 		return npcs[id];
 	}
 
-	// API Begins here
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////// API Begins here ///////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Add a message to an NPC if it exists
@@ -71,14 +72,12 @@
 	 * @param	Number		The ID of the entity you'd like to add a message to
 	 * @param	Object		A flattened object/key-value pair of conditions.
 	 * @param	String		The message
+	 * @param	Object		A flattened object/key-value pair of reward indictators.
 	 * @returns	Null
 	 */
-	ThusSpokeNpc.add = function(id /* Int */, conditions /* Object */, message /* String */) {
+	ThusSpokeNpc.add = function(id /* Int */, conditions /* Object */, message /* String */, rewards /* Object */) {
 		if(npcs[id] !== undefined) {
-			npcs[id].messages.push({
-				conditions: conditions,
-				message: message || "Placeholder message!"
-			});
+			npcs[id].messages.push(new NpcMessage(conditions, message, rewards));
 		}
 	};
 
@@ -86,7 +85,7 @@
 	 * Ask the NPC a question
 	 * @api
 	 * @param	Number		The ID of the entity you'd like to ask a question to
-	 * @param	Object		A flattened object/key-value pair of conditions.
+	 * @param	Object		A flattened object/key-value pair of condition criteria.
 	 * @returns	Null
 	 */
 	ThusSpokeNpc.ask = function(id /* Int */, conditions /* Object */) {
@@ -111,7 +110,7 @@
 	 * @api
 	 * @param	Number		The ID of the entity you'd like to ask a question to
 	 * @param	String		What the NPC says
-	 * @param	Object		A flattened object/key-value pair of rewards.
+	 * @param	Object		A flattened object/key-value pair of reward indictators.
 	 * @returns	Null
 	 */
 	ThusSpokeNpc.say = function(id /* Int */, message /* String */, rewards /* Object */) {
@@ -148,7 +147,7 @@
 	 * A container for an NPC Message
 	 * @param	Object		A flattened object/key-value pair of conditions.
 	 * @param	String		A message
-	 * @param	Object		A flattened object/key-value pair of rewards.
+	 * @param	Object		A flattened object/key-value pair of reward indictators.
 	 */
 	function NpcMessage(conditions, message, rewards) {
 		if(conditions instanceof Object) {
@@ -211,6 +210,8 @@
 	 * @returns	Object			Or false if no match was found
 	 */
 	function isValidAsking(conditions /* Object */, npc /* ThusSpokeNpc */) {
+		var greeting = false;
+
 		if((npc.range !== 0 && conditions.range > npc.range) || npc.lastInteraction) {
 			return false;
 		}
@@ -220,6 +221,11 @@
 			var match = true;
 			for(var j in message.conditions) {
 				// Go through the conditions required for each message
+				if(!greeting) {
+					if(j == 'greeting') {
+						greeting = message;
+					}
+				}
 				if(message.conditions.hasOwnProperty(j)) {
 					if(!conditions.hasOwnProperty(j) || conditions[j] !== message.conditions[j]) {
 						// The conditions are not fulfilled, move on to the next message
@@ -231,9 +237,9 @@
 			if(match) {
 				// Message was matched to the conditions, return it
 				return message;
-			} 
+			}
 		}
-		return false;
+		return greeting;
 	}
 
 	/*************
