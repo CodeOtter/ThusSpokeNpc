@@ -1,6 +1,6 @@
 {
   "name": "thusspokenpc",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "A dialog/interaction system for non-player characters in games.",
   "main": "index.js",
   "scripts": {
