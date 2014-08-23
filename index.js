@@ -28,9 +28,11 @@
 	 * 
 	 */
 	function ThusSpokeNpc(id /* Int */, speak /* Function */, tolerance /* Int */, range /* Float */, banter /* Int */, banterDelay /* Int */, messages /* Array */) {
-		var self = this;
+		var self = this,
+			rawKv = typeof messages == 'string',
+			normalizedMessages = [],
+			messages = fromRawKV(messages);
 
-		var normalizedMessages = [];
 		for(var i in messages) {
 			normalizedMessages.push(new NpcMessage(messages[i]));
 		}
@@ -41,7 +43,12 @@
 			range: range || 0.0,
 			banter: banter || 0,
 			banterDelay: banterDelay || 0,
-			speak: speak,
+			speak: function(id, message, rewards) {
+				if(rawKv) {
+					rewards = toRawKv(rewards);
+				}
+				speak(id, message, rewards);
+			},
 			timers: {
 				banterCheck: null,
 				lastInteraction: null
@@ -70,7 +77,16 @@
 	 */
 	ThusSpokeNpc.add = function(id /* Int */, conditions /* Object */, message /* String */, rewards /* Object */) {
 		if(npcs[id] !== undefined) {
-			npcs[id].messages.push(new NpcMessage(conditions, message, rewards));
+			var result;
+			if(typeof conditions == 'string') {
+				result = fromRawKv(conditions);
+				for(var i in result) {
+					npcs[id].messages.push(new NpcMessage(result[j].conditions, result[j].message, result[j].rewards || {}));
+				}
+			} else {
+				npcs[id].messages.push(new NpcMessage(conditions, message, rewards));	
+			}
+			
 		}
 	};
 
@@ -83,6 +99,11 @@
 	 */
 	ThusSpokeNpc.ask = function(id /* Int */, conditions /* Object */) {
 		var npc = npcs[id];
+		
+		if(typeof conditions == 'string') {
+			conditions = fromRawKv(conditions)[0].conditions;	
+		}
+
 		if(npc !== undefined) {
 			var message = isValidAsking(conditions, npc);
 			if(message) {
@@ -164,7 +185,7 @@
 	 * @param	Object		A flattened object/key-value pair of reward indictators.
 	 */
 	function NpcMessage(conditions, message, rewards) {
-		if(conditions instanceof Object) {
+		if(conditions.conditions && conditions.message) {
 			this.conditions = conditions.conditions || false;
 			this.message = conditions.message || false;
 			this.rewards = conditions.reward || {};
@@ -173,7 +194,7 @@
 			this.message = message || false;
 			this.rewards = rewards || {};
 		}
-		
+
 		if(!this.conditions)
 			throw new Error('NPC Message requires conditions');
 		
@@ -185,6 +206,106 @@
 	 * Private Helpers *
 	 *******************/
 
+	/**
+	 * Converts a flattened array/key-value pair into a pipe-delimited string
+	 * @param	Object	A flattened object/key-value pair.
+	 * @returns	String	A pipe-delimited representation of that object
+	 */
+	function toRawKV(data) {
+		var result = '';
+		for(var i in data) {
+			for(var j in data[i].conditions) {
+				var value = data[i].conditions[j];
+				if(value == true) {
+					value = 'true';
+				}
+				if(value == false) {
+					value = 'false';
+				}
+				if(value == null) {
+					value = 'null';
+				}
+				result += j + '=' + value + ',';
+			}
+			result += '|' + data[i].message + '|';
+
+			if(data[i].rewards) {
+				for(var j in data[i].rewards) {
+					var value = data[i].rewards[j];
+					if(value == true) {
+						value = 'true';
+					}
+					if(value == false) {
+						value = 'false';
+					}
+					if(value == null) {
+						value = 'null';
+					}
+					result += j + '=' + value + ',';
+				}
+			}
+			result += '<<<';
+		}
+		return result;
+	}
+
+	/**
+	 * Converst a pipe-delimited string into a flattened object/key-value pair.
+	 * @param	Object	A pipe-delimited representation of that object
+	 * @returns	String	A flattened object/key-value pair.
+	 */
+	function fromRawKV(raw) {
+		if(typeof raw == 'string') {
+			var result = [];
+			var messages = raw.split('<<<');
+
+			for(var i in messages) {
+				if(messages[i] != '') {
+					var components = messages[i].split('|');
+					var conditions = {}, rewards = {}, message = components[1];
+
+					var conditionComponents = components[0].split(',');
+					for(var j in conditionComponents) {
+						if(conditionComponents[j] != '') {
+							var parts = conditionComponents[j].split('=');
+							if(parts[1] == 'true') {
+								parts[1] = true;
+							}
+							if(parts[1] == 'false') {
+								parts[1] = false;
+							}
+							if(parts[1] == 'null') {
+								parts[1] = null;
+							}
+							conditions[parts[0]] = parts[1];
+						}
+					}
+	
+					var rewardComponents = components[2].split(',');
+					for(var j in rewardComponents) {
+						if(rewardComponents[j] != '') {
+							var parts = rewardComponents[j].split('=');
+							if(parts[1] == 'true') {
+								parts[1] = true;
+							}
+							if(parts[1] == 'false') {
+								parts[1] = false;
+							}
+							if(parts[1] == 'null') {
+								parts[1] = null;
+							}
+							rewards[parts[0]] = parts[1];
+						}
+					}
+					result.push(new NpcMessage(conditions, message, rewards));
+				}
+			}
+			return result;
+		} else {
+			return raw;
+		}
+	}
+	
 	/**
 	 * Returns a random number between a specified range
 	 * @param	Number	Minimum range

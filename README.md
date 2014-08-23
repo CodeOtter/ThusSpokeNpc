@@ -41,7 +41,7 @@ Let's examine why this is by looking at each parameter in the ```ThusSpokeNpc```
 1. The **range** (Float) is how close the Player has to be to the NPC for ask requests to be handled.  If the range is set to 0, the Player can be anywhere to ask an NPC.  (*The default is 0*)
 1. The **banter** (Integer) is the percent chance an NPC will engage in banter.  Banter is random speech, indicated by adding ```banter: true``` to the conditions of an NPC message.  If the banter is set to 0, the NPC will never engage in banter.  (*By default this value is 0*)
 1. The **banter delay** (Integer) is the delay (*in milliseconds*) that an NPC will wait before checking to engage in banter.  If the banter delay is set to 0, the NPC will never engage in banter.  (*By default this value is 0)
-1. The **messages** (Array) are an array of object literals that represent NPC Messages.
+1. The **NPC Messages** (Array) are an array of object literals that represent NPC Messages.
 
 ## Examples
 
@@ -162,7 +162,7 @@ raw Player Object had these properties in it and they were structured like this:
 
 Your flattened condition criteria will have to look like this:
 
-```
+```javascript
 {
 	'item:4': true,
 	'item:16': true,
@@ -174,7 +174,7 @@ Your flattened condition criteria will have to look like this:
 The same rules apply to the Reward indicators of an NPC Message.  You'll have to wire up your own way of converting indicators into actually changing 
 the Player object.  So, if a reward is:
 
-```
+```javascript
 {
 	take: 'item:4',
 	'quest:23': 'completed'
@@ -184,3 +184,47 @@ the Player object.  So, if a reward is:
 
 You will need to analyze the properties of the Reward indicator, and when ```take``` is detected, have a function that explodes its value and takes 
 Item 4 from the Player.  You'll also have to check for ```/quest\:([0-9]+)/``` and change the status of these quests based on the indicators values.
+
+### Custom Tokenizer
+
+In the event that a JSON library fails to be loaded (In the case of Unity, for example) ThusSpokeNpc comes with its own extremely ugly but effective tokenizer.  For any method that allows for NPC Messages, the following format is also acceptable:
+
+```text
+greeting=true|Hello! Find my pigs!|quest:45=active<<<
+quest:45=active,item:454=true,item:324=true|You found my two piglets!|takeItem:454=true,takeItem:324,quest:45=complete<<<
+```
+
+Is the same as passing in this object literal:
+
+```javascript
+[
+	{
+		conditions: {
+			greeting: true
+		},
+		message: 'Hello! Find my pigs!'
+		rewards: {
+			'quest:45': 'active'
+		}
+	},
+	{
+		conditions: {
+			'quest:45': 'active',
+			'item:454': true,
+			'itemL324': true
+		},
+		message: 'You found my two piglets!'
+		rewards: {
+			'takeItem:454': true,
+			'takeItem:324': true,
+			'quest:45': 'complete'
+		}
+	}
+]
+```
+
+To create key/value criteria this with ```ask()```, do the following:
+
+```javascript
+npcAsk(14, "quest:45=active,item:454=true,item:324=true||<<<");
+```
