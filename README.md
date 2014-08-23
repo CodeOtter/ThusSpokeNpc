@@ -1,7 +1,7 @@
 ThusSpokeNpc
 =============
 
-A dialog/interaction system for non-player characters in games.
+A dialog/interaction system for non-player characters in games.  Check out this [demo](http://htmlpreview.github.io/?https://github.com/CodeOtter/ThusSpokeNpc/blob/master/index.html).
 
 ## Installation
 
