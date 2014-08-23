@@ -4,7 +4,7 @@
 		<title>Test ThusSpokeNpc</title>
 		<script src="index.js" type="text/javascript"></script>
 		<script type="text/javascript">
-			var npc = new ThusSpokeNpc(1, 0, 0, 0, 0, speakHandler, [
+			var npc = ThusSpokeNpc(1, 0, 0, 0, 0, speakHandler, [
 				{
 					conditions: {
 						banter: 1
@@ -25,7 +25,7 @@
 				},
 				{
 					conditions: {
-						objectId: 1
+						'item:1': true
 					},
 					message: 'You found my stuff!!! Thanks!'
 				},
@@ -34,12 +34,12 @@
 			/**
 			 * Speaker Handler
 			  */
-			function speakHandler(id, message) {
-				document.getElementById("output").value = id = ' says: ' + message;
+			function speakHandler(id, message, rewards) {
+				document.getElementById("output").value = id + ' says: ' + message + ' (' + JSON.stringify(rewards) + ')';
 			}
 
 			function speak() {
-				npc.ask({ range: 10, objectId: 1 });
+				ThusSpokeNpc.ask(1, { range: 10, 'item:1': true });
 			}
 		</script>
 		<style type="text/css">
