@@ -20,6 +20,7 @@ Client Install (remote):
 **ThusSpokeNpc** is a JavaScript singleton that manages a list of **NPC Messages** (a message, its trigger conditions, and its rewards).  Calling up the singleton as a function will register a new NPC Message like so:
 
 ```javascript
+// Accessible as npcCreate() as well
 var npc = ThusSpokeNpc(1, speakHandler, 0, 0, 0, 0, [{
     conditions: { 'item:1': true },
     message: "You found my ring!",
@@ -31,12 +32,12 @@ This will create an NPC Message that uses Entity ID 1, can be asked questions ov
 
 Let's examine why this is by looking at each parameter in the ```ThusSpokeNpc``` function:
 
-1. The **Entity ID** (Integer) is the ID of the Game Entity you want to be askable.  (*This value is required.*)
+1. The **Entity ID** (Integer) is the ID of the Game Entity you want to be *askable*.  (*This value is required.*)
 1. The **speak handler** (Function) is a function that is notified whenever the NPC speaks.  (*This value is required*) The parameters of this function are:
   1. The Entity ID of the speaking NPC (Integer)
   1. The message the NPC is speaking (String)
-  1. The reward indictators of triggering this speech. (Object)
-1. The **tolerance** (Integer) is the delay (*in millseconds*) that is imposed in between asks.  If the tolerance was at 3000, this would mean when a Player asks the NPC, the NPC will ignore additional asks for the next three seconds.  If the tolerance is set to 0, an NPC can be asked over and over again without delay.  (*By default the tolerance is set to 0*)
+  1. The reward indicators of triggering this speech. (Object)
+1. The **tolerance** (Integer) is the delay (*in milliseconds*) that is imposed in between asks.  If the tolerance was at 3000, this would mean when a Player asks the NPC, the NPC will ignore additional asks for the next three seconds.  If the tolerance is set to 0, an NPC can be asked over and over again without delay.  (*By default the tolerance is set to 0*)
 1. The **range** (Float) is how close the Player has to be to the NPC for ask requests to be handled.  If the range is set to 0, the Player can be anywhere to ask an NPC.  (*The default is 0*)
 1. The **banter** (Integer) is the percent chance an NPC will engage in banter.  Banter is random speech, indicated by adding ```banter: true``` to the conditions of an NPC message.  If the banter is set to 0, the NPC will never engage in banter.  (*By default this value is 0*)
 1. The **banter delay** (Integer) is the delay (*in milliseconds*) that an NPC will wait before checking to engage in banter.  If the banter delay is set to 0, the NPC will never engage in banter.  (*By default this value is 0)
@@ -71,7 +72,7 @@ var npc = ThusSpokeNpc(482, speakHandler, 1000, 10, 5, 15000, [{
 }]);
 ```
 
-If we wanted to create an NPC that uses Entity ID 143335, does not care about being incessently badgered, needs the Player to be within 1 units of distance of the NPC, has no desire to engage in banter, greets the player by giving him Quest 43, spoke when the player hadn't completed Quest 43 (the missing taco!), spoke again when the player had Item 34, and thanked the player after the quest was completed,  we would do the following:
+If we wanted to create an NPC that uses Entity ID 143335, does not care about being incessantly badgered, needs the Player to be within 1 units of distance of the NPC, has no desire to engage in banter, greets the player by giving him Quest 43, spoke when the player hadn't completed Quest 43 (the missing taco!), spoke again when the player had Item 34, and thanked the player after the quest was completed,  we would do the following:
 
 ```javascript
 var npc = ThusSpokeNpc(143335, speakHandler, 0, 1, 0, 0, [{
@@ -96,6 +97,7 @@ var npc = ThusSpokeNpc(143335, speakHandler, 0, 1, 0, 0, [{
 This will force Entity 1 to say something and trigger rewards.
 
 ```javascript
+// Accessible as npcSay() as well
 ThusSpokeNpc.say(1, "Don't tell me how to live my life!", { 'item:123': true });
 ```
 
@@ -104,6 +106,7 @@ Because the matching engine is a key-value comparison, is best to have your crit
 properties a player has.  (See *Advanced Usage* below)
 
 ```javascript
+// Accessible as npcAsk() as well
 ThusSpokeNpc.ask(65, {
     range: 1, 
     'item:23': true, 
@@ -115,12 +118,14 @@ ThusSpokeNpc.ask(65, {
 To add more messages to Entity 7353, do the following:
 
 ```javascript
+// Accessible as npcAdd() as well
 ThusSpokeNpc.add(7353, { greeting: true }, 'Stay a while and listen!', { 'quest:8494': 'active' });
 ```
 
 To destroy Entity 588's ability to message, do the following:
 
 ```javascript
+// Accessible as npcDestroy() as well
 ThusSpokeNpc.destroy(588);
 ```
 
