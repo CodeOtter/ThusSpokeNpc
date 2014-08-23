@@ -88,13 +88,11 @@
 			if(message) {
 				if(npc.timers.lastInteraction === null) {
 					clearInterval(npc.timers.banterCheck);
-					console.log('cleared');
 					npc.timers.lastInteraction = setTimeout(function() { 
 						// Prevent the user from badgering this NPC over and over again
 						clearInterval(npc.timers.lastInteraction);
 						npc.timers.lastInteraction = null;
 						npc.timers.banterCheck = setInterval(getBanterCheck(id), npc.banterDelay);
-						console.log('restored');
 					}, npc.tolerance);
 				}
 				npc.speak(id, message.message, message.rewards);
