@@ -190,11 +190,21 @@ Item 4 from the Player.  You'll also have to check for ```/quest\:([0-9]+)/``` a
 In the event that a JSON library fails to be loaded (In the case of Unity, for example) ThusSpokeNpc comes with its own extremely ugly but effective tokenizer.  For any method that allows for NPC Messages, the following format is also acceptable:
 
 ```text
+conditions1|message1|rewards1<<<
+conditions2|message2|rewards2<<<
+conditions3|message3|rewards3<<<
+```
+
+This will load three NPC Messages into an NPC.  The ```|``` separates what argument to populate, and the ```<<<``` indicates end-of-line for parsing reasons.
+
+An example of this is:
+
+```text
 greeting=true|Hello! Find my pigs!|quest:45=active<<<
 quest:45=active,item:454=true,item:324=true|You found my two piglets!|takeItem:454=true,takeItem:324,quest:45=complete<<<
 ```
 
-Is the same as passing in this object literal:
+... and that is the same as passing in this object literal into an NPC Messages argument:
 
 ```javascript
 [
